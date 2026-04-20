@@ -29,6 +29,6 @@ sealed interface LogEntry {
         override val message: String,
         override val tag: String,
         override val throwable: Throwable,
-        val customKeys: List<CustomKey>,
+        val customKeys: List<CustomKey> = listOf(),
     ) : WithException
 }

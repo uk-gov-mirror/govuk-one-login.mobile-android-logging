@@ -1,6 +1,7 @@
 package uk.gov.logging.impl.analytics.v3
 
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Named.named
 import org.junit.jupiter.params.ParameterizedTest
@@ -14,34 +15,34 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import uk.gov.logging.api.analytics.AnalyticsEvent
 import uk.gov.logging.api.analytics.parameters.RequiredParameters
-import uk.gov.logging.testdouble.v3.SystemLogger
+import uk.gov.logging.testdouble.v3.TestLogger
 import java.util.stream.Stream
 
 internal class FirebaseAnalyticsLoggerTest {
     private var analytics: FirebaseAnalytics = mock()
 
-    private var logger = SystemLogger()
+    private var logger = TestLogger()
 
     private val analyticsLogger by lazy {
         FirebaseAnalyticsLogger(
             analytics = analytics,
-            logger = logger,
         )
     }
 
     @BeforeEach
     fun setup() {
         analytics = mock()
-        logger = SystemLogger()
+        logger = TestLogger()
     }
 
     @ParameterizedTest(name = "{index}: {0}")
     @MethodSource("setupLogEventEdgeCases")
-    fun `screen view events are Logged via Firebase`() {
-        analyticsLogger.logEvent(true, event)
+    fun `screen view events are Logged via Firebase`() =
+        runTest {
+            analyticsLogger.logEvent(true, event)
 
-        verify(analytics, times(1)).logEvent(eq(event.eventType), any())
-    }
+            verify(analytics, times(1)).logEvent(eq(event.eventType), any())
+        }
 
     companion object {
         private val event =

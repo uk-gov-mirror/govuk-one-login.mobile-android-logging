@@ -53,6 +53,10 @@ android {
 
 dependencies {
     listOf(
+        libs.junit,
+    ).forEach(::api)
+
+    listOf(
         libs.androidx.test.core.ktx,
         libs.androidx.test.ext.junit,
         libs.androidx.test.runner,

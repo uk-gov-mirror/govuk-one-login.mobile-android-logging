@@ -18,7 +18,6 @@ import uk.gov.logging.testdouble.v3.LoggingTestData.basicLocalInfoEntry
 import uk.gov.logging.testdouble.v3.LoggingTestData.basicWarnEntry
 import uk.gov.logging.testdouble.v3.LoggingTestData.customKeyThrowable
 import uk.gov.logging.testdouble.v3.LoggingTestData.errorLocalThrowableEntry
-import uk.gov.logging.testdouble.v3.LoggingTestData.errorThrowableEntry
 import uk.gov.logging.testdouble.v3.LoggingTestData.intCustomKey
 import uk.gov.logging.testdouble.v3.LoggingTestData.logMessageEntryFalse
 import uk.gov.logging.testdouble.v3.LoggingTestData.logTagEntryFalse
@@ -30,8 +29,8 @@ import kotlin.test.Test
 import kotlin.test.assertFalse
 
 @Suppress("LongMethod")
-internal class SystemLoggerTest {
-    private val logger = SystemLogger()
+internal class TestLoggerTest {
+    private val logger = TestLogger()
 
     @Test
     fun `verify in-memory logging behaviour with any function`() {
@@ -122,20 +121,6 @@ internal class SystemLoggerTest {
                         basicErrorEntry,
                     ),
                     { log: Logger -> log.error(LOG_TAG, LOG_MESSAGE) },
-                ),
-                arguments(
-                    named(
-                        "Error messages are stored with Throwable",
-                        errorThrowableEntry,
-                    ),
-                    { log: Logger -> log.error(LOG_TAG, LOG_MESSAGE, logThrowable) },
-                ),
-                arguments(
-                    named(
-                        "Error messages are stored with Throwable when entry is logged",
-                        errorThrowableEntry,
-                    ),
-                    { log: Logger -> log.log(errorThrowableEntry) },
                 ),
                 arguments(
                     named(

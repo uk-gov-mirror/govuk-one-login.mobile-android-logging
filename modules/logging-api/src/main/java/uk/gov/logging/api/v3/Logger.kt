@@ -45,20 +45,6 @@ fun interface Logger {
         tag: String,
         message: String,
         throwable: Throwable,
-    ) = log(
-        LogEntry.Error(
-            tag = tag,
-            message = message,
-            throwable = throwable,
-            level = Log.ERROR,
-            customKeys = listOf(),
-        ),
-    )
-
-    fun error(
-        tag: String,
-        message: String,
-        throwable: Throwable,
         vararg customKey: CustomKey,
     ) = log(
         LogEntry.Error(

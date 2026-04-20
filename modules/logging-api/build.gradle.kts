@@ -83,9 +83,11 @@ dependencies {
     }
 
     listOf(
+        libs.androidx.test.ext.junit,
         libs.hilt.android.testing,
         libs.kotlinx.coroutines.test,
         kotlin("test"),
+        libs.junit.junit,
         libs.junit.jupiter,
         libs.junit.jupiter.params,
         platform(libs.junit.bom),

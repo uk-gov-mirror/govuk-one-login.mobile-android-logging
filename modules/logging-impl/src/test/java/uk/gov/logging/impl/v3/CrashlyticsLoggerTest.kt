@@ -67,16 +67,6 @@ class CrashlyticsLoggerTest {
         verify(firebaseCrashlytics).log("E : $logTag : $logMessage")
     }
 
-    @Test
-    fun `log error message with log tag and log message on firebase crashlytics with no error keys parsed`() {
-        logger.error(
-            logTag,
-            logMessage,
-            exception,
-        )
-        verify(firebaseCrashlytics).recordException(eq(exception))
-    }
-
     @ParameterizedTest(name = "{index}: test key {2} with value {3}")
     @MethodSource("setUpTestValues")
     fun `log throwable message and custom keys on firebase crashlytics `(

@@ -118,12 +118,6 @@ class AndroidLoggerTest {
     }
 
     @Test
-    fun `Error messages logged with throwable no custom key on crash logger `() {
-        logger.error(tag = logTag, message = logMessage, throwable = logThrowable)
-        assertTrue(capturedOutput().contains("E : $logTag : $logMessage"))
-    }
-
-    @Test
     fun `Error messages with throwable and custom key call crash logger`() {
         logger.error(tag = logTag, message = logMessage, throwable = logThrowable, customKeyNotnull)
         assertTrue(capturedOutput().contains("E : $logTag : $logMessage"))

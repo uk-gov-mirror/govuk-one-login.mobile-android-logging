@@ -1,8 +1,6 @@
-package uk.gov.logging.testdouble.v3
+package uk.gov.logging.api.v3
 
 import android.util.Log
-import uk.gov.logging.api.v3.LocalLogEntry
-import uk.gov.logging.api.v3.LogEntry
 import uk.gov.logging.api.v3.customkey.CustomKey
 
 object LoggingTestData {
@@ -10,9 +8,6 @@ object LoggingTestData {
 
     const val LOG_MESSAGE = "Unit test log message"
     const val LOG_TAG = "Example log tag"
-
-    const val LOG_MESSAGE_TWO = "unit test second log message"
-    const val LOG_TAG_TWO = "Example log tag two"
 
     val logThrowable = Throwable(message = THROWABLE_MESSAGE)
 
@@ -25,21 +20,8 @@ object LoggingTestData {
             level = Log.DEBUG,
         )
 
-    val basicLocalDebugEntry =
-        LocalLogEntry.Basic(
-            tag = LOG_TAG,
-            message = LOG_MESSAGE,
-            level = Log.DEBUG,
-        )
     val basicInfoEntry =
         LogEntry.Basic(
-            tag = LOG_TAG,
-            message = LOG_MESSAGE,
-            level = Log.INFO,
-        )
-
-    val basicLocalInfoEntry =
-        LocalLogEntry.Basic(
             tag = LOG_TAG,
             message = LOG_MESSAGE,
             level = Log.INFO,
@@ -58,12 +40,13 @@ object LoggingTestData {
             level = Log.ERROR,
         )
 
-    val errorLocalThrowableEntry =
-        LocalLogEntry.Error(
+    val errorThrowableEntry =
+        LogEntry.Error(
             Log.ERROR,
             LOG_MESSAGE,
             LOG_TAG,
             logThrowable,
+            customKeys = listOf(),
         )
 
     val withExceptionEntry: LogEntry.WithException =
@@ -75,14 +58,6 @@ object LoggingTestData {
             customKeys = listOf(),
         )
 
-    val withExceptionLocalEntry: LogEntry.WithException =
-        LocalLogEntry.Error(
-            level = Log.ERROR,
-            message = LOG_MESSAGE,
-            tag = LOG_TAG,
-            throwable = logThrowable,
-        )
-
     val customKeyThrowable =
         LogEntry.Error(
             Log.ERROR,
@@ -92,17 +67,43 @@ object LoggingTestData {
             listOf(intCustomKey),
         )
 
-    val logMessageEntryFalse =
-        LogEntry.Basic(
-            tag = LOG_TAG,
-            message = LOG_MESSAGE_TWO,
-            level = Log.DEBUG,
+    val listOfErrorEntries =
+        listOf(
+            errorThrowableEntry,
+            customKeyThrowable,
         )
 
-    val logTagEntryFalse =
-        LogEntry.Basic(
-            Log.DEBUG,
-            LOG_TAG_TWO,
-            LOG_MESSAGE,
+    val listOfBasicEntries =
+        listOf<LogEntry>(
+            LogEntry.Basic(
+                level = Log.ASSERT,
+                message = LOG_MESSAGE,
+                tag = LOG_TAG,
+            ),
+            LogEntry.Basic(
+                level = Log.ERROR,
+                message = LOG_MESSAGE,
+                tag = LOG_TAG,
+            ),
+            LogEntry.Basic(
+                level = Log.WARN,
+                message = LOG_MESSAGE,
+                tag = LOG_TAG,
+            ),
+            LogEntry.Basic(
+                level = Log.INFO,
+                message = LOG_MESSAGE,
+                tag = LOG_TAG,
+            ),
+            LogEntry.Basic(
+                level = Log.DEBUG,
+                message = LOG_MESSAGE,
+                tag = LOG_TAG,
+            ),
+            LogEntry.Basic(
+                level = Log.VERBOSE,
+                message = LOG_MESSAGE,
+                tag = LOG_TAG,
+            ),
         )
 }

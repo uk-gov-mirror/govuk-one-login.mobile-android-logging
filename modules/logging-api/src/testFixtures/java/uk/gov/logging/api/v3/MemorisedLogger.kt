@@ -25,4 +25,6 @@ data class MemorisedLogger(
         any {
             it is LogEntry.WithException && it.throwable == throwable
         }
+
+    operator fun get(index: Int): LogEntry = entries[index]
 }
