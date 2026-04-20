@@ -176,7 +176,11 @@ class AndroidLogger(
 }
 ```
 ## Android Logger V3
-Android Logger v3 introduces a structured, entry-based logging API. Instead of calling individual log methods with separate parameters, v3 uses LogEntry sealed types to represent log events, which are processed through a single log function. It also supports CustomKey types for setting typed key-value pairs on crash reports.
+Android Logger v3 introduces a structured, entry-based logging API. 
+Instead of calling individual log methods with separate String parameters,
+v3 uses enforces consistency in Log configuration by parsing LogEntry sealed types to represent log events,
+which are processed through a single log function. the sub function are still available for flexibility.
+It also supports CustomKey types for setting typed key-value pairs on crash reports.
 
 The logger provides the following functions:
 
@@ -202,54 +206,40 @@ LogEntry.Error–Represents an error log event with a exception and optional cus
 
 LocalLogEntry.Basic / LocalLogEntry.Error–Log entries intended for local-only logging. Logger implementations that perform network calls should not log these entries.
 
-```kotlin
-class AndroidLogger(
-    private val crashLogger: CrashLogger,
-) : Logger {
-    override fun log(entries: Collection<LogEntry>) =
-        entries.forEach { entry ->
-            when (entry) {
-                is LogEntry.Basic -> logBasicEntries(entry)
-                is LogEntry.Error -> logEntriesWithException(entry)
-                is LocalLogEntry.Basic -> logBasicEntries(entry)
-                is LocalLogEntry.Error -> logBasicEntries(entry)
-                else -> logBasicEntries(entry)
-            }
-        }
 
-    private fun logBasicEntries(logEntry: LogEntry) {
-        if (BuildConfig.DEBUG) {
-            when (logEntry.level) {
-                Log.DEBUG -> Log.d(logEntry.tag, logEntry.message)
-                Log.WARN -> Log.w(logEntry.tag, logEntry.message)
-                Log.ERROR -> Log.e(logEntry.tag, logEntry.message)
-                Log.INFO -> Log.i(logEntry.tag, logEntry.message)
-            }
-        }
-        when (logEntry.level) {
-            Log.WARN -> crashLogger(logEntry.tag, logEntry.message, "W")
-            Log.ERROR -> crashLogger(logEntry.tag, logEntry.message, "E")
-            Log.INFO -> crashLogger(logEntry.tag, logEntry.message, "I")
-        }
-    }
+### V3 Logger Implementations
 
-    private fun logEntriesWithException(logEntry: LogEntry.Error) {
-        if (BuildConfig.DEBUG) {
-            Log.e(logEntry.tag, logEntry.message, logEntry.throwable)
-        }
+[AndroidLogger](modules/logging-impl/src/main/java/uk/gov/logging/impl/v3/AndroidLogger.kt)
+Entry point logger that delegates to a MultiLogger.
 
-        crashLogger.log(logEntry.throwable, *logEntry.customKeys.toTypedArray())
-    }
+[MultiLogger](modules/logging-impl/src/main/java/uk/gov/logging/impl/v3/MultiLogger.kt)
+Funnel that passes all entries to a collection of sub-loggers.
+Each sub-logger is responsible for filtering and processing the entry types it cares about.
 
-    private fun crashLogger(
-        tag: String,
-        message: String,
-        suffix: String,
-    ) {
-        crashLogger.log("$suffix : $tag : $message")
-    }
-}
-```
+[LogcatLogger](modules/logging-impl/src/main/java/uk/gov/logging/impl/v3/LogcatLogger.kt)
+Filters for LocalLogEntry and logs to Android log functions locally.
+Designed as a Logger specifically for log entries not ready to be logged remotely.
+
+[CrashlyticsLogger](modules/logging-impl/src/main/java/uk/gov/logging/impl/v3/CrashlyticsLogger.kt)
+Filters out LocalLogEntry and logs entries to Firebase crashlytics.
+Use for remote crash reporting and error tracking.
+
+[Logger](modules/logging-api/src/main/java/uk/gov/logging/api/v3/Logger.kt)
+The Logger interface is a functional interface with convenience sub-functions (debug, info, warning, error).
+The core contract is the log function which accepts LogEntry instances.
+
+### V3 Test Loggers
+
+[MemorisedLogger](modules/logging-api/src/testFixtures/java/uk/gov/logging/api/v3/MemorisedLogger.kt)
+Stores entries in memory for assertions.
+Optionally decorates a sub-logger.
+Use in test fixtures with Hamcrest-matchers.
+
+[TestLogger](modules/logging-testdouble/src/main/java/uk/gov/logging/testdouble/v3/TestLogger.kt)
+Stores entries and prints to the console.
+Include contains operators for LogEntry type matching.
+Use as a drop-in replacement for production loggers in tests.
+
 
 ## Releases
 

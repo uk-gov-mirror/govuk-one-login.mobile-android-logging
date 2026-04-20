@@ -7,8 +7,6 @@ import org.hamcrest.TypeSafeMatcher
 import uk.gov.logging.api.v3.LogEntry
 import uk.gov.logging.api.v3.MemorisedLogger
 
-// MARK: Hamcrest assertions for testing
-
 object MemorisedLoggerMatchers {
     fun hasSize(expected: Int): Matcher<MemorisedLogger> = hasSize(equalTo(expected))
 
