@@ -2,6 +2,7 @@ package uk.gov.logging.impl.analytics.v3
 
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -13,6 +14,7 @@ import uk.gov.logging.impl.analytics.extensions.setCollectionEnabled
 
 class FirebaseAnalyticsLogger(
     private val analytics: FirebaseAnalytics,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : AnalyticsLogger,
     LogTagProvider {
     override suspend fun logEvent(
@@ -44,7 +46,7 @@ class FirebaseAnalyticsLogger(
 
     private suspend fun internalLogEvent(event: AnalyticsEvent) {
         mutex.withLock {
-            withContext(Dispatchers.Default) {
+            withContext(dispatcher) {
                 val bundledParameters = event.toBundle()
                 analytics.logEvent(event.eventType, bundledParameters)
                 debugLog(
