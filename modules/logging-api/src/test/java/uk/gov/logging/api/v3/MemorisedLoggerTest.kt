@@ -1,6 +1,5 @@
 package uk.gov.logging.api.v3
 
-import android.util.Log
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.everyItem
 import org.hamcrest.MatcherAssert.assertThat
@@ -10,15 +9,13 @@ import org.hamcrest.Matchers.hasItem
 import org.junit.jupiter.api.Test
 import uk.gov.logging.api.v3.LoggingTestData.LOG_MESSAGE
 import uk.gov.logging.api.v3.LoggingTestData.LOG_TAG
-import uk.gov.logging.api.v3.LoggingTestData.basicDebugEntry
-import uk.gov.logging.api.v3.LoggingTestData.basicErrorEntry
-import uk.gov.logging.api.v3.LoggingTestData.basicInfoEntry
-import uk.gov.logging.api.v3.LoggingTestData.basicWarnEntry
-import uk.gov.logging.api.v3.LoggingTestData.customKeyThrowable
-import uk.gov.logging.api.v3.LoggingTestData.errorThrowableEntry
-import uk.gov.logging.api.v3.LoggingTestData.listOfBasicEntries
-import uk.gov.logging.api.v3.LoggingTestData.listOfErrorEntries
-import uk.gov.logging.api.v3.LoggingTestData.withExceptionEntry
+import uk.gov.logging.api.v3.LoggingTestData.debug
+import uk.gov.logging.api.v3.LoggingTestData.error
+import uk.gov.logging.api.v3.LoggingTestData.errorEntries
+import uk.gov.logging.api.v3.LoggingTestData.errorWithCustomKey
+import uk.gov.logging.api.v3.LoggingTestData.info
+import uk.gov.logging.api.v3.LoggingTestData.messageEntries
+import uk.gov.logging.api.v3.LoggingTestData.warning
 import uk.gov.logging.api.v3.matchers.LogEntryMatchers.hasCustomKeys
 import uk.gov.logging.api.v3.matchers.LogEntryMatchers.hasException
 import uk.gov.logging.api.v3.matchers.LogEntryMatchers.hasLogEntry
@@ -38,7 +35,7 @@ class MemorisedLoggerTest {
     @Test
     fun `Verify info messages are stored within the logger instance`() {
         logger.log(
-            basicInfoEntry,
+            info,
         )
 
         assertThat(
@@ -50,7 +47,7 @@ class MemorisedLoggerTest {
             logger,
             contains(
                 allOf(
-                    isLogLevel(Log.INFO),
+                    isLogLevel(LogLevel.Info),
                     hasMessage(LOG_MESSAGE),
                     hasTag(LOG_TAG),
                 ),
@@ -61,7 +58,7 @@ class MemorisedLoggerTest {
     @Test
     fun `Verify debug messages are stored within the logger instance`() {
         logger.log(
-            basicDebugEntry,
+            debug,
         )
 
         assertThat(
@@ -73,7 +70,7 @@ class MemorisedLoggerTest {
             logger,
             contains(
                 allOf(
-                    isLogLevel(Log.DEBUG),
+                    isLogLevel(LogLevel.Debug),
                     hasMessage(LOG_MESSAGE),
                     hasTag(LOG_TAG),
                 ),
@@ -84,7 +81,7 @@ class MemorisedLoggerTest {
     @Test
     fun `Verify warn messages are stored within the logger instance`() {
         logger.log(
-            basicWarnEntry,
+            warning,
         )
 
         assertThat(
@@ -96,7 +93,7 @@ class MemorisedLoggerTest {
             logger,
             contains(
                 allOf(
-                    isLogLevel(Log.WARN),
+                    isLogLevel(LogLevel.Warn),
                     hasMessage(LOG_MESSAGE),
                     hasTag(LOG_TAG),
                 ),
@@ -107,19 +104,19 @@ class MemorisedLoggerTest {
     @Test
     fun `Verify error basic messages are stored within the logger instance`() {
         logger.log(
-            basicErrorEntry,
+            error,
         )
 
         assertThat(
             logger,
-            contains(isBasicEntry()),
+            contains(isErrorEntry()),
         )
 
         assertThat(
             logger,
             contains(
                 allOf(
-                    isLogLevel(Log.ERROR),
+                    isLogLevel(LogLevel.Error),
                     hasMessage(LOG_MESSAGE),
                     hasTag(LOG_TAG),
                 ),
@@ -129,23 +126,22 @@ class MemorisedLoggerTest {
 
     @Test
     fun `verify in-memory logging behaviour with basic entries has expected size`() {
-        logger.log(listOfBasicEntries)
+        logger.log(messageEntries)
         assertThat(
             logger,
-            hasSize(listOfBasicEntries.size),
+            hasSize(messageEntries.size),
         )
     }
 
     @Test
     fun `verify in-memory logging behaviour with list of basic entries `() {
-        logger.log(listOfBasicEntries)
+        logger.log(messageEntries)
 
         assertThat(
             logger,
             hasLogEntry(
                 everyItem(
                     allOf(
-                        isBasicEntry(),
                         hasMessage(LOG_MESSAGE),
                         hasTag(LOG_TAG),
                     ),
@@ -156,16 +152,16 @@ class MemorisedLoggerTest {
 
     @Test
     fun `verify in-memory logging behaviour with error entries has expected size`() {
-        logger.log(listOfErrorEntries)
+        logger.log(errorEntries)
         assertThat(
             logger,
-            hasSize(listOfErrorEntries.size),
+            hasSize(errorEntries.size),
         )
     }
 
     @Test
     fun `verify in-memory logging behaviour with list of error entries `() {
-        logger.log(listOfErrorEntries)
+        logger.log(errorEntries)
 
         assertThat(
             logger,
@@ -183,14 +179,13 @@ class MemorisedLoggerTest {
 
     @Test
     fun `test memorised logger contains expected log entry`() {
-        val expectedEntry =
-            LogEntry.Basic(
+        val expectedEntry: LogEntry =
+            LogEntry.Info(
                 tag = LOG_TAG,
                 message = LOG_MESSAGE,
-                level = Log.INFO,
             )
 
-        logger.log(listOfBasicEntries)
+        logger.log(messageEntries)
 
         assertThat(
             logger,
@@ -200,7 +195,7 @@ class MemorisedLoggerTest {
 
     @Test
     fun `verify in-memory logging behaviour with error entries`() {
-        logger.log(errorThrowableEntry)
+        logger.log(error)
         assertThat(
             logger,
             contains(isErrorEntry()),
@@ -210,7 +205,7 @@ class MemorisedLoggerTest {
             logger,
             contains(
                 allOf(
-                    isLogLevel(Log.ERROR),
+                    isLogLevel(LogLevel.Error),
                     hasMessage(LOG_MESSAGE),
                     hasTag(LOG_TAG),
                 ),
@@ -220,11 +215,11 @@ class MemorisedLoggerTest {
 
     @Test
     fun `verify in-memory logging behaviour with error entry with exception`() {
-        logger.log(withExceptionEntry)
+        logger.log(error)
         assertThat(
             logger,
             contains(
-                hasException(equalTo(withExceptionEntry.throwable)),
+                hasException(equalTo(error.throwable)),
             ),
         )
 
@@ -238,12 +233,12 @@ class MemorisedLoggerTest {
 
     @Test
     fun `verify in-memory logging behaviour with error with exact throwable instance`() {
-        logger.log(withExceptionEntry)
+        logger.log(error)
         assertThat(
             logger,
             hasLogEntry(
                 hasItem(
-                    hasException(withExceptionEntry.throwable::class),
+                    hasException(error.throwable::class),
                 ),
             ),
         )
@@ -251,11 +246,11 @@ class MemorisedLoggerTest {
 
     @Test
     fun `verify in-memory logging behaviour with error entry with custom keys`() {
-        logger.log(customKeyThrowable)
+        logger.log(errorWithCustomKey)
         assertThat(
             logger,
             contains(
-                hasCustomKeys(equalTo(customKeyThrowable.customKeys)),
+                hasCustomKeys(equalTo(errorWithCustomKey.customKeys)),
             ),
         )
     }
